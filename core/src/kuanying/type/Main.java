@@ -28,6 +28,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 
 public class Main extends ApplicationAdapter {
     @Override
@@ -44,7 +45,7 @@ public class Main extends ApplicationAdapter {
 
         final HorizontalGroup a = new HorizontalGroup();
         for(int i=0; i<article.length(); i++) {
-            final Label c = 
+            final CharLabel c = 
                     new CharLabel(String.valueOf(article.charAt(i)), skin);
             //c.setColor(Color.RED);
             a.addActor(c);
@@ -173,7 +174,7 @@ public class Main extends ApplicationAdapter {
         assertTrue(wc("hello ") == 1);
         assertTrue(wc("hello, world!") == 2);
         assertTrue(wc("hello,world!") == 2);
-        assertTrue(wc(article) == 126);
+        assertTrue(wc("This is a book.") == 4);
     }
 
     
@@ -186,16 +187,29 @@ public class Main extends ApplicationAdapter {
     private TimeLabel timeLabel;
     private Button restartButton;
     private static final String punctuations = ",.;:";
-    private static final String article = "MOUNTAIN VIEW, Calif. — LAST June, in an interview with Adam Bryant of The Times, Laszlo Bock, the senior vice president of people operations for Google — i.e., the guy in charge of hiring for one of the world’s most successful companies — noted that Google had determined that “G.P.A.’s are worthless as a criteria for hiring, and test scores are worthless. ... We found that they don’t predict anything.” He also noted that the “proportion of people without any college education at Google has increased over time” — now as high as 14 percent on some teams. At a time when many people are asking, “How’s my kid gonna get a job?” I thought it would be useful to visit Google and hear how Bock would answer.";
+    private static final String article = "Last June, in an interview with Adam Bryant of The Times, Laszlo Bock, the senior vice president of people operations for Google — i.e., the guy in charge of hiring for one of the world’s most successful companies — noted that Google had determined that “G.P.A.’s are worthless as a criteria for hiring, and test scores are worthless. ... We found that they don’t predict anything.” He also noted that the “proportion of people without any college education at Google has increased over time” — now as high as 14 percent on some teams. At a time when many people are asking, “How’s my kid gonna get a job?” I thought it would be useful to visit Google and hear how Bock would answer.";
     private int index = 0;
 
 
 
 }
 
-class CharLabel extends Label {
+/*
+class WordLabel extends HorizontalGroup {
+    private final CharLabel[] chars = new CharLabel[];
+
+    public WorldLabel(String w, Skin skin) {
+        for(int i=0; i<w.length(); i++) {
+            chars[i] = new CharLabel(w.charAt(i), skin);
+        }
+    }
+}
+*/
+class CharLabel extends Button {
     private boolean isActive = false;
     private static final Color[] blackColors = new Color[32];
+    private Label charLabel; 
+
     static {
         for(int i=0; i<blackColors.length; i++) {
             final float v = (float)i / blackColors.length;
@@ -205,23 +219,37 @@ class CharLabel extends Label {
     private float elapsed = 0;
 
     public CharLabel(String text, Skin skin) {
-        super(text, skin);
+        super(skin);
+        charLabel = new Label(text, skin);
+        add(charLabel);
+    }
+
+    public void setTextColor(Color c) {
+        charLabel.setColor(c);
     }
 
     public void setActive(boolean b) { 
         isActive = b; 
+        if(b) {
+            setColor(Color.YELLOW);
+        } else {
+            confirmColor();
+        }
         //if(isActive) elapsed = 0;
     }
     public boolean isActive() { return isActive; }
+
+    public void confirmColor() {
+        final float ratio = Math.min(elapsed / .3f, 1f);
+        final int i = Math.round((blackColors.length-1) * ratio);
+        setColor(blackColors[i]);
+    }
 
     @Override 
     public void act(float delta) {
         super.act(delta);
         if(!isActive) return;
         elapsed += delta;
-        final float ratio = Math.min(elapsed / .5f, 1);
-        final int i = Math.round((blackColors.length-1) * ratio);
-        setColor(blackColors[i]);
     }
 }
 
